@@ -1,5 +1,6 @@
 """Aengus - homelab metric anomaly detection. Read path first."""
-
+from dotenv import load_dotenv
+load_dotenv()
 import os
 from influxdb_client import InfluxDBClient
 
@@ -37,3 +38,13 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+    def write_reading(write_api, value):
+    point = (
+        Point("aengus")
+        .tag("host", "proxmox")
+        .tag("metric", "cpu.usage_iowait")
+        .field("value", float(value))
+    )
+    write_api.write(bucket=BUCKET, org=ORG, record=point)
