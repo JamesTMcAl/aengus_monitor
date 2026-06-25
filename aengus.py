@@ -2,7 +2,8 @@
 from dotenv import load_dotenv
 load_dotenv()
 import os
-from influxdb_client import InfluxDBClient
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
 
 URL    = os.environ.get("AENGUS_INFLUX_URL", "http://192.168.0.109:8086")
 TOKEN  = os.environ.get("AENGUS_INFLUX_TOKEN")
@@ -26,21 +27,8 @@ def latest_iowait(query_api):
             return record.get_time(), record.get_value()
     return None, None
 
-
-def main():
-    client = InfluxDBClient(url=URL, token=TOKEN, org=ORG)
-    ts, value = latest_iowait(client.query_api())
-    if value is None:
-        print("No data returned - check measurement/field/host")
-    else:
-        print(f"{ts}  usage_iowait = {value:.2f}")
-
-
-if __name__ == "__main__":
-    main()
-
-
-    def write_reading(write_api, value):
+def write_reading(write_api, value):
+    """Write a metric reading back to InfluxDB under the aengus measurement"""
     point = (
         Point("aengus")
         .tag("host", "proxmox")
@@ -48,3 +36,17 @@ if __name__ == "__main__":
         .field("value", float(value))
     )
     write_api.write(bucket=BUCKET, org=ORG, record=point)
+
+def main():
+    client = InfluxDBClient(url=URL, token=TOKEN, org=ORG)
+    ts, value = latest_iowait(client.query_api())
+    if value is None:
+        print("No data returned - check measurement/field/host")
+        return
+    print(f"{ts}  usage_iowait = {value:.2f}")
+    write_reading(client.write_api(write_options=SYNCHRONOUS), value)
+    print("wrote reading back to influx")
+
+
+if __name__ == "__main__":
+    main()
