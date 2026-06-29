@@ -14,6 +14,7 @@ Early development.
 ## Requirements
 influxdb-client
 python-dotenv
+pytest
 
 ## env. Example
 AENGUS_INFLUX_URL=http://192.168.0.109:8086
