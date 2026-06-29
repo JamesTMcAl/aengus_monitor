@@ -11,11 +11,6 @@ Named after the wandering Aengus - endlessly seeking.
 ## Status
 Early development.
 
-## Requirements
-influxdb-client
-python-dotenv
-pytest
-
 ## env. Example
 AENGUS_INFLUX_URL=http://192.168.0.109:8086
 AENGUS_INFLUX_TOKEN=your-token-here
